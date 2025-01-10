@@ -426,7 +426,7 @@ class Validator
         }
 
         if ($forceAsAssociative || $this->isAssociativeArray($params[0])) {
-           $params[0] = array_keys($params[0]);
+            $params[0] = array_keys($params[0]);
         }
 
         $strict = false;
@@ -754,7 +754,9 @@ class Validator
     protected function validateDate($field, $value)
     {
         $isDate = false;
-        if ($value instanceof \DateTime) {
+        if (is_null($value)) {
+            $isDate = false;
+        } else if ($value instanceof \DateTime) {
             $isDate = true;
         } else {
             $isDate = strtotime($value) !== false;
@@ -905,7 +907,6 @@ class Validator
 
                     // we only need to test against one card type
                     return (preg_match($cardRegex[$cardType], $value) === 1);
-
                 } elseif (isset($cards)) {
                     // if we have cards, check our users card against only the ones we have
                     foreach ($cards as $card) {
@@ -988,7 +989,7 @@ class Validator
         }
         // if we have conditionally required fields
         if ($conditionallyReq && (is_null($value) ||
-                is_string($value) && trim($value) === '')) {
+            is_string($value) && trim($value) === '')) {
             return false;
         }
         return true;
@@ -1032,7 +1033,7 @@ class Validator
         }
         // if we have conditionally required fields
         if ($conditionallyReq && (is_null($value) ||
-                is_string($value) && trim($value) === '')) {
+            is_string($value) && trim($value) === '')) {
             return false;
         }
         return true;
@@ -1177,7 +1178,7 @@ class Validator
             return array($values, true);
         } // Dead end, abort
         elseif ($identifier === null || ! isset($data[$identifier])) {
-            if ($allow_empty){
+            if ($allow_empty) {
                 //when empty values are allowed, we only care if the key exists
                 return array(null, array_key_exists($identifier, $data));
             }
@@ -1195,20 +1196,21 @@ class Validator
         }
     }
 
-    private function validationMustBeExcecuted($validation, $field, $values, $multiple){
+    private function validationMustBeExcecuted($validation, $field, $values, $multiple)
+    {
         //always excecute requiredWith(out) rules
-        if (in_array($validation['rule'], array('requiredWith', 'requiredWithout'))){
+        if (in_array($validation['rule'], array('requiredWith', 'requiredWithout'))) {
             return true;
         }
 
         //do not execute if the field is optional and not set
-        if($this->hasRule('optional', $field) && ! isset($values)){
+        if ($this->hasRule('optional', $field) && ! isset($values)) {
             return false;
         }
 
         //ignore empty input, except for required and accepted rule
-        if (! $this->hasRule('required', $field) && ! in_array($validation['rule'], array('required', 'accepted'))){
-            if($multiple){
+        if (! $this->hasRule('required', $field) && ! in_array($validation['rule'], array('required', 'accepted'))) {
+            if ($multiple) {
                 return count($values) != 0;
             }
             return (isset($values) && $values !== '');
@@ -1228,7 +1230,7 @@ class Validator
             foreach ($v['fields'] as $field) {
                 list($values, $multiple) = $this->getPart($this->_fields, explode('.', $field), false);
 
-                if (! $this->validationMustBeExcecuted($v, $field, $values, $multiple)){
+                if (! $this->validationMustBeExcecuted($v, $field, $values, $multiple)) {
                     continue;
                 }
 
@@ -1242,7 +1244,7 @@ class Validator
 
                 if (!$multiple) {
                     $values = array($values);
-                } else if (! $this->hasRule('required', $field)){
+                } else if (! $this->hasRule('required', $field)) {
                     $values = array_filter($values);
                 }
 
@@ -1407,8 +1409,10 @@ class Validator
         // Get any other arguments passed to function
         $params = array_slice(func_get_args(), 2);
 
-        if (is_callable($rule)
-            && !(is_string($rule) && $this->hasValidator($rule))) {
+        if (
+            is_callable($rule)
+            && !(is_string($rule) && $this->hasValidator($rule))
+        ) {
             $name = $this->getUniqueRuleName($fields);
             $message = isset($params[0]) ? $params[0] : null;
             $this->addInstanceRule($name, $rule, $message);
@@ -1587,7 +1591,8 @@ class Validator
         }, array_keys($rules));
     }
 
-    private function isAssociativeArray($input){
+    private function isAssociativeArray($input)
+    {
         //array contains at least one key that's not an can not be cast to an integer
         return count(array_filter(array_keys($input), 'is_string')) > 0;
     }
